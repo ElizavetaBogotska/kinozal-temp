@@ -1,13 +1,14 @@
 const {task, series, parallel, src, dest, watch} = require('gulp');
-const sass = require('gulp-sass')(require('sass'));
+const sass = require('gulp-sass');
 const browserSync = require('browser-sync');
+const notify = require('gulp-notify');
 const postcss = require('gulp-postcss');
 const csscomb = require('gulp-csscomb');
 const autoprefixer = require('autoprefixer');
 const mqpacker = require('css-mqpacker');
 const sortCSSmq = require('sort-css-media-queries');
 
-const PATH = {
+const path = {
   scssFolder: './assets/scss/',
   scssFiles: './assets/scss/**/*.scss',
   scssFile: './assets/scss/style.scss',
@@ -18,11 +19,11 @@ const PATH = {
   jsFiles: './assets/js/**/*.js'
 };
 
-const PLUGINS = [
+const plugins = [
   autoprefixer({
     overrideBrowserslist: [
       'last 5 versions',
-      '> 0.1%'
+      '> 1%'
     ],
     cascade: true
   }),
@@ -30,25 +31,34 @@ const PLUGINS = [
 ];
 
 function scss() {
-  return src(PATH.scssFile).
+  return src(path.scssFile).
     pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError)).
-    pipe(postcss(PLUGINS)).
-    pipe(dest(PATH.cssFolder)).
-    pipe(browserSync.stream());
+    pipe(postcss(plugins)).
+    pipe(dest(path.cssFolder)).
+    pipe(notify({
+      message: 'Compiled!',
+      sound: false
+    })).
+    pipe(browserSync.reload({stream: true}));
 }
 
 function scssDev() {
-  return src(PATH.scssFile, {sourcemaps: true}).
+  return src(path.scssFile, {sourcemaps: true}).
     pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError)).
-    pipe(postcss(PLUGINS)).
-    pipe(dest(PATH.cssFolder, {sourcemaps: true})).
-    pipe(browserSync.stream());
+    pipe(postcss(plugins)).
+    pipe(dest(path.cssFolder, {sourcemaps: true})).
+    pipe(notify({
+      message: 'Compiled!',
+      sound: false
+    })).
+    pipe(browserSync.reload({stream: true}));
 }
 
 function comb() {
-  return src(PATH.scssFiles).
+  return src(path.scssFiles).
     pipe(csscomb()).
-    pipe(dest(PATH.scssFolder));
+    on('error', notify.onError((error) => `File: ${error.message}`)).
+    pipe(dest(path.scssFolder));
 }
 
 function syncInit() {
@@ -64,10 +74,10 @@ async function sync() {
 
 function watchFiles() {
   syncInit();
-  watch(PATH.scssFiles, series(scss));
-  watch(PATH.htmlFiles, sync);
-  watch(PATH.jsFiles, sync);
-  // watch(PATH.cssFiles, sync);
+  watch(path.scssFiles, series(scss));
+  watch(path.htmlFiles, sync);
+  watch(path.jsFiles, sync);
+  watch(path.cssFiles, sync);
 }
 
 task('comb', series(comb));
