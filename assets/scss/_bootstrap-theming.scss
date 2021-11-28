@@ -51,3 +51,24 @@
     float: none;
     margin-right: 0;
 }
+.panel {
+    background-color: $color-gray-light;
+    margin-bottom: $gap * 2;
+    &-info {
+    border: none;
+    > .panel-heading {
+    color: $color-white;
+    background-color: $color-accent;
+    border: none;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    }
+}
+&-body {
+    border: 1px solid $color-gray;
+    border-radius: 0 0 4px 4px;
+}
+}
+.input-group-lg>.form-control {
+    font-size: 0.875rem;
+}
